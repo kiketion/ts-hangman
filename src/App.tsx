@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Drawing } from './components/Drawing';
 import { Word } from './components/Word';
 import { Keyboard } from './components/Keyboard';
@@ -13,6 +13,28 @@ function App() {
   const incorrectLetters = guessedLetters.filter(
     (letter) => !wordGuessed.includes(letter)
   );
+
+  const addGuessedLetter = useCallback(
+    (letter: string) => {
+      if (guessedLetters.includes(letter)) return;
+      setGuessedLetters((currentLetters) => [...currentLetters, letter]);
+    },
+    [guessedLetters]
+  );
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const key = e.key;
+      if (!key.match(/^[a-z]$/)) return;
+
+      e.preventDefault();
+      addGuessedLetter(key);
+    };
+    document.addEventListener('keypress', handler);
+    return () => {
+      document.removeEventListener('keypress', handler);
+    };
+  }, [guessedLetters]);
 
   console.log(wordGuessed);
 
